@@ -10,6 +10,7 @@
 	if (browser) {
 		const renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio(window.devicePixelRatio);
 		document.body.appendChild(renderer.domElement);
 
 		// Sets the color of the background
