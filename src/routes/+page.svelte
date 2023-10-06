@@ -25,6 +25,7 @@
 
 		// Sets orbit control to move the camera around
 		const controls = new OrbitControls(camera, renderer.domElement);
+		controls.autoRotate = true;
 
 		// Camera positioning
 		camera.position.set(6, 8, 14);
@@ -104,7 +105,7 @@
 				// console.log(intersects.length);
 				// if (intersects.length > 0) {
 				// 	findPathTo(new YUKA.Vector3().copy(intersects[0].point));
-				findPathTo(new THREE.Vector3(13, 8, -40));
+				findPathTo(new THREE.Vector3(-20, 4, 120));
 				// }
 			});
 
