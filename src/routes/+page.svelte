@@ -39,14 +39,14 @@
 		directionalLight.position.set(3, 10, 2);
 
 		// add vehicle
-		const vehicleGeometry = new THREE.ConeGeometry(0.125, 0.5, 16);
-		vehicleGeometry.rotateX(Math.PI * 0.5);
-		vehicleGeometry.translate(0, 0.25, 0);
-		const vehicleMaterial = new THREE.MeshNormalMaterial();
+		// const vehicleGeometry = new THREE.ConeGeometry(0.125, 0.5, 16);
+		// vehicleGeometry.rotateX(Math.PI * 0.5);
+		// vehicleGeometry.translate(0, 0.25, 0);
+		// const vehicleMaterial = new THREE.MeshNormalMaterial();
 
-		const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
-		vehicleMesh.matrixAutoUpdate = false;
-		scene.add(vehicleMesh);
+		// const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial);
+		// vehicleMesh.matrixAutoUpdate = false;
+		// scene.add(vehicleMesh);
 
 		function sync(entity, renderComponent) {
 			renderComponent.matrix.copy(entity.worldMatrix);
@@ -67,46 +67,58 @@
 
 		// add navMesh
 		const navmeshLoader = new YUKA.NavMeshLoader();
-		navmeshLoader.load('MonacoNavMeshScaled3.glb').then((navigationMesh) => {
+		navmeshLoader.load('MonacoNavMeshScaled5.glb').then((navigationMesh) => {
 			const navMesh = navigationMesh;
 
 			const graph = navMesh.graph;
 			const graphHelper = createGraphHelper(graph, 0.2);
-			scene.add(graphHelper);
+			// scene.add(graphHelper);
 
 			const navMeshGroup = createConvexRegionHelper(navMesh);
-			scene.add(navMeshGroup);
-
+			// scene.add(navMeshGroup);
+			const loader = new GLTFLoader();
+			const group = new THREE.Group();
 			const vehicle = new YUKA.Vehicle();
-			vehicle.setRenderComponent(vehicleMesh, sync);
-			entityManager.add(vehicle);
-			vehicle.steering.add(followPathBehavior);
+			loader.load('Car.glb', function (glb) {
+				const model = glb.scene;
+				model.matrixAutoUpdate = false;
+				group.add(model);
+				scene.add(group);
+				// vehicle.smoother = new YUKA.Smoother(180);
+				vehicle.setRenderComponent(model, sync);
+				entityManager.add(vehicle);
+				vehicle.position.x = 5;
+				vehicle.maxSpeed = 25;
+				vehicle.steering.add(followPathBehavior);
+			});
 
 			const mousePosition = new THREE.Vector2();
 			const raycaster = new THREE.Raycaster();
 
 			window.addEventListener('click', function (e) {
-				mousePosition.x = (e.clientX / this.window.innerWidth) * 2 - 1;
-				mousePosition.y = (e.clientY / this.window.innerHeight) * 2 + 1;
+				// mousePosition.x = (e.clientX / this.window.innerWidth) * 2 - 1;
+				// mousePosition.y = (e.clientY / this.window.innerHeight) * 2 + 1;
 
-				raycaster.setFromCamera(mousePosition, camera);
-				const intersects = raycaster.intersectObject(navMeshGroup);
-				console.log(intersects.length);
-				if (intersects.length > 0) {
-					findPathTo(new YUKA.Vector3().copy(intersects[0].point));
-				}
+				// raycaster.setFromCamera(mousePosition, camera);
+				// const intersects = raycaster.intersectObject(navMeshGroup);
+				// console.log(intersects.length);
+				// if (intersects.length > 0) {
+				// 	findPathTo(new YUKA.Vector3().copy(intersects[0].point));
+				findPathTo(new THREE.Vector3(13, 8, -40));
+				// }
 			});
 
 			function findPathTo(target) {
 				console.log('click');
 				const from = vehicle.position;
 				const to = target;
-				const path = navMesh.findPathTo(from, to);
+				const path = navMesh.findPath(from, to);
 
 				const followPathBehavior = vehicle.steering.behaviors[0];
-				followPathBehavior.active = true;
-				followPathBehavior.path.clear();
 
+				followPathBehavior.active = true;
+				followPathBehavior.nextWaypointDistance = 5;
+				followPathBehavior.path.clear();
 				for (let point of path) followPathBehavior.path.add(point);
 			}
 		});
