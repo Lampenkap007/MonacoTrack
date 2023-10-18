@@ -74,10 +74,10 @@
 
 			const graph = navMesh.graph;
 			const graphHelper = createGraphHelper(graph, 0.2);
-			// scene.add(graphHelper);
+			scene.add(graphHelper);
 
 			const navMeshGroup = createConvexRegionHelper(navMesh);
-			// scene.add(navMeshGroup);
+			scene.add(navMeshGroup);
 			const loader = new GLTFLoader();
 			const group = new THREE.Group();
 			const vehicle = new YUKA.Vehicle();
@@ -107,21 +107,27 @@
 				// if (intersects.length > 0) {
 				// 	findPathTo(new YUKA.Vector3().copy(intersects[0].point));
 				findPathTo(new THREE.Vector3(-20, 4, 120));
+
 				// }
 			});
 
 			function findPathTo(target) {
-				console.log('click');
-				const from = vehicle.position;
-				const to = target;
-				const path = navMesh.findPath(from, to);
+				window.setInterval(function () {
+					const from = vehicle.position;
+					const to = target;
+					const path = navMesh.findPath(from, to);
+					const followPathBehavior = vehicle.steering.behaviors[0];
 
-				const followPathBehavior = vehicle.steering.behaviors[0];
-
-				followPathBehavior.active = true;
-				followPathBehavior.nextWaypointDistance = 5;
-				followPathBehavior.path.clear();
-				for (let point of path) followPathBehavior.path.add(point);
+					followPathBehavior.active = true;
+					followPathBehavior.nextWaypointDistance = 5;
+					followPathBehavior.path.clear();
+					for (let point of path) followPathBehavior.path.add(point);
+					console.log(path.length);
+					if (path.length < 10) {
+						console.log('almost there!');
+						findPathTo(new THREE.Vector3(-12, 6, 0));
+					}
+				}, 500);
 			}
 		});
 
